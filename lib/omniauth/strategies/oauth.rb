@@ -29,7 +29,6 @@ module OmniAuth
         request_token = consumer.get_request_token({:oauth_callback => callback_url}, options.request_params)
         session['oauth'] ||= {}
         session['oauth'][name.to_s] = {'callback_confirmed' => request_token.callback_confirmed?, 'request_token' => request_token.token, 'request_secret' => request_token.secret}
-        log :error, "OAUTH_INFO::Request #{name}: #{session['oauth'][name.to_s]['request_token']}, #{session['oauth'][name.to_s]['callback_confirmed']}"
 
         if request_token.callback_confirmed?
           redirect request_token.authorize_url(options[:authorize_params])
@@ -46,7 +45,6 @@ module OmniAuth
       def callback_phase
         raise OmniAuth::NoSessionError.new("Session Expired") if session['oauth'].nil?
 
-        log :error, "OAUTH_INFO::Callback #{name}: #{session['oauth'][name.to_s]['request_token']}, #{session['oauth'][name.to_s]['callback_confirmed']}"
         request_token = ::OAuth::RequestToken.new(consumer, session['oauth'][name.to_s].delete('request_token'), session['oauth'][name.to_s].delete('request_secret'))
 
         opts = {}
