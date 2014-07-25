@@ -54,6 +54,7 @@ module OmniAuth
           opts[:oauth_callback] = callback_url
         end
 
+        build_debug opts
         @access_token = request_token.get_access_token(opts)
         super
       rescue ::Timeout::Error => e
@@ -66,6 +67,18 @@ module OmniAuth
         fail!(:invalid_response, e)
       rescue ::OmniAuth::NoSessionError => e
         fail!(:session_expired, e)
+      end
+
+      def build_debug(opts)
+        request.env['omniauth.debug'] = {
+          oauth: {
+            linkedin: {
+              callback_confirmed: session['oauth'][name.to_s]['callback_confirmed']
+            }
+          },
+          oauth_verifier: request['oauth_verifier'],
+          access_token_opts: opts
+        }
       end
 
       credentials do
