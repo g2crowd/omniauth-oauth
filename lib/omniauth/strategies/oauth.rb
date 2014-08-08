@@ -25,10 +25,19 @@ module OmniAuth
         consumer
       end
 
+      def auth_log(message)
+        log :info, "AUTH_LOG:::#{message}"
+      end
+
       def request_phase
         request_token = consumer.get_request_token({:oauth_callback => callback_url}, options.request_params)
         session['oauth'] ||= {}
         session['oauth'][name.to_s] = {'callback_confirmed' => request_token.callback_confirmed?, 'request_token' => request_token.token, 'request_secret' => request_token.secret}
+
+        auth_log "Request Phase: #{('*' * 50)}"
+        auth_log "remote_ip: #{request.ip}"
+        auth_log "token: #{request_token.token}"
+        auth_log '*' * 50
 
         if request_token.callback_confirmed?
           redirect request_token.authorize_url(options[:authorize_params])
@@ -54,6 +63,10 @@ module OmniAuth
           opts[:oauth_callback] = callback_url
         end
 
+        auth_log "Callback Phase: #{('*' * 50)}"
+        auth_log "remote_ip: #{request.ip}"
+        auth_log "token: #{request_token.token}"
+        auth_log '*' * 50
         build_debug opts
         @access_token = request_token.get_access_token(opts)
         super
